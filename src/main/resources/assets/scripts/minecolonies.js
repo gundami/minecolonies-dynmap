@@ -21,14 +21,14 @@ const markerContent = (data) => {
     return `
         <div class="minecolonies-marker">
             <div class="sizer"></div>
-            <h2 class="${data.icon}">${data.colony}</h2>
+            <h2 class="${data.icon}">${fixEncoding(data.colony)}</h2>
             <div class="paragraph">
                 <p>Mayor: ${data.mayor}</p>
                 <p>Style: ${data.style}</p>
             </div>
-        
+
             <hr/>
-            
+
             <details class="expansion">
                 <summary>
                     <span data-css-icon="down">Buildings: ${data.building_count}<i></i></span>
@@ -41,9 +41,9 @@ const markerContent = (data) => {
                     </table>
                 </div>
             </details>
-            
+
             <hr/>
-            
+
             <details class="expansion">
                 <summary>
                     <span data-css-icon="down">Population: ${data.citizen_count}<i></i></span>
@@ -59,6 +59,12 @@ const markerContent = (data) => {
         </div>
     `;
 };
+function fixEncoding(str) {
+    // 把错误解码的 Latin1 字符串，重新变成 UTF-8 字节流，再用 UTF-8 解码
+    return new TextDecoder('utf-8').decode(
+        Uint8Array.from([...str].map(c => c.charCodeAt(0)))
+    );
+}
 
 function setDetailsHeight(selector, wrapper = document) {
     const setHeight = (detail, open = false) => {

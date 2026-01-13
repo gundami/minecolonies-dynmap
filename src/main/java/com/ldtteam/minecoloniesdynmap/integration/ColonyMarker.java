@@ -230,7 +230,7 @@ public class ColonyMarker
      */
     public void updateTeamColor()
     {
-        Integer color = colony.getTeam().getColor().getColor();
+        Integer color = colony.getTeamColonyColor().getColor();
         if (color == null)
         {
             color = Objects.requireNonNull(ChatFormatting.WHITE.getColor());

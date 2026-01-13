@@ -1,30 +1,39 @@
 package com.ldtteam.minecoloniesdynmap;
 
 import com.ldtteam.minecoloniesdynmap.integration.DynmapIntegration;
-import com.minecolonies.api.colony.buildings.event.BuildingConstructionEvent;
-import com.minecolonies.api.colony.citizens.event.CitizenAddedEvent;
-import com.minecolonies.api.colony.event.ColonyCreatedEvent;
-import com.minecolonies.api.colony.event.ColonyDeletedEvent;
-import com.minecolonies.api.colony.event.ColonyInformationChangedEvent;
-import com.minecolonies.api.colony.managers.events.ColonyManagerLoadedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import com.minecolonies.api.IMinecoloniesAPI;
+import com.minecolonies.api.eventbus.EventBus;
+import com.minecolonies.api.eventbus.events.colony.buildings.BuildingConstructionModEvent;
+import com.minecolonies.api.eventbus.events.colony.citizens.CitizenAddedModEvent;
+import com.minecolonies.api.eventbus.events.colony.ColonyCreatedModEvent;
+import com.minecolonies.api.eventbus.events.colony.ColonyDeletedModEvent;
+import com.minecolonies.api.eventbus.events.colony.ColonyNameChangedModEvent;
+import com.minecolonies.api.eventbus.events.colony.ColonyTeamColorChangedModEvent;
+import com.minecolonies.api.eventbus.events.ColonyManagerLoadedModEvent;
 
 import java.util.function.Consumer;
 
 /**
  * Event bus for receiving events from Minecolonies.
  */
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+
 public class MinecoloniesEventBus
 {
-    private MinecoloniesEventBus()
+    public static void register()
     {
+        EventBus eventBus = IMinecoloniesAPI.getInstance().getEventBus();
+        eventBus.subscribe(ColonyManagerLoadedModEvent.class,MinecoloniesEventBus::onColonyManagerLoaded);
+        eventBus.subscribe(ColonyCreatedModEvent.class,MinecoloniesEventBus::onColonyCreated);
+        eventBus.subscribe(ColonyDeletedModEvent.class,MinecoloniesEventBus::onColonyDeleted);
+        eventBus.subscribe(ColonyNameChangedModEvent.class,MinecoloniesEventBus::onColonyInformationChanged);
+        eventBus.subscribe(ColonyTeamColorChangedModEvent.class,MinecoloniesEventBus::onColonyColorChanged);
+        eventBus.subscribe(BuildingConstructionModEvent.class,MinecoloniesEventBus::onColonyBuildingConstruction);
+        eventBus.subscribe(CitizenAddedModEvent.class,MinecoloniesEventBus::onCitizenAdded);
     }
 
-    @SubscribeEvent
-    public static void onColonyManagerLoaded(ColonyManagerLoadedEvent event)
+    public static void onColonyManagerLoaded(ColonyManagerLoadedModEvent event)
     {
+        MinecoloniesDynmap.LOGGER.info("Colony Manager Loaded");
         event.getColonyManager().getAllColonies().forEach(colony -> run(integration -> integration.createColony(colony)));
     }
 
@@ -38,45 +47,41 @@ public class MinecoloniesEventBus
         DynmapIntegration.getInstance().ifPresent(callback);
     }
 
-    @SubscribeEvent
-    public static void onColonyCreated(ColonyCreatedEvent event)
+    public static void onColonyCreated(ColonyCreatedModEvent event)
     {
+        MinecoloniesDynmap.LOGGER.info("Colony Created");
         run(integration -> integration.createColony(event.getColony()));
     }
 
-    @SubscribeEvent
-    public static void onColonyDeleted(ColonyDeletedEvent event)
+    public static void onColonyDeleted(ColonyDeletedModEvent event)
     {
+        MinecoloniesDynmap.LOGGER.info("Colony Deleted");
         run(integration -> integration.deleteColony(event.getColony()));
     }
 
-    @SubscribeEvent
-    public static void onColonyInformationChanged(ColonyInformationChangedEvent event)
+    public static void onColonyInformationChanged(ColonyNameChangedModEvent event)
     {
-        if (event.getType() == ColonyInformationChangedEvent.Type.NAME)
-        {
-            run(integration -> integration.updateName(event.getColony()));
-        }
-        else if (event.getType() == ColonyInformationChangedEvent.Type.TEAM_COLOR)
-        {
-            run(integration -> integration.updateTeamColor(event.getColony()));
-        }
+        MinecoloniesDynmap.LOGGER.info("Colony Information Changed");
+        run(integration -> integration.updateName(event.getColony()));
     }
 
-    @SubscribeEvent
-    public static void onColonyBuildingConstruction(BuildingConstructionEvent event)
+    public static void onColonyColorChanged(ColonyTeamColorChangedModEvent event)
     {
-        if (event.getEventType() == BuildingConstructionEvent.EventType.BUILT
-              || event.getEventType() == BuildingConstructionEvent.EventType.UPGRADED
-              || event.getEventType() == BuildingConstructionEvent.EventType.REMOVED)
-        {
-            run(integration -> integration.updateBuildings(event.getColony()));
-        }
+        MinecoloniesDynmap.LOGGER.info("Colony Color Changed");
+        run(integration -> integration.updateTeamColor(event.getColony()));
     }
 
-    @SubscribeEvent
-    public static void onCitizenAdded(CitizenAddedEvent event)
+    public static void onColonyBuildingConstruction(BuildingConstructionModEvent event)
     {
+        MinecoloniesDynmap.LOGGER.info("Colony Building Construction");
+        run(integration -> integration.updateBuildings(event.getColony()));
+    }
+
+
+    public static void onCitizenAdded(CitizenAddedModEvent event)
+    {
+        MinecoloniesDynmap.LOGGER.info("Citizen Added");
         run(integration -> integration.updateCitizenCount(event.getColony()));
     }
+
 }

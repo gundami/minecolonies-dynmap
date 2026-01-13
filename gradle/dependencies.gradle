@@ -13,27 +13,14 @@ repositories {
 }
 
 dependencies {
-    implementation(fg.deobf("com.ldtteam:minecolonies:${project.minecoloniesVersion}")) {
-        transitive = false
-    }
+    implementation fg.deobf("curse.maven:minecolonies-245506:6790449")
+    implementation fg.deobf("curse.maven:structurize-298744:6710737")
+    implementation fg.deobf("curse.maven:domum-ornamentum-527361:6721676")
+    implementation fg.deobf("curse.maven:blockui-522992:6646544")
 
-    compileOnly(fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")) {
-        transitive = false
-    }
-    runtimeOnly(fg.deobf("com.ldtteam:domum_ornamentum:${project.domumOrnamentumVersion}:universal")) {
-        transitive = false
-    }
-
-    implementation(fg.deobf("com.ldtteam:blockui:${project.blockUI_version}")) {
-        transitive = false
-    }
-
-    implementation(fg.deobf("com.ldtteam:structurize:${project.structurize_version}")) {
-        transitive = false
-    }
 
     compileOnly fg.deobf("us.dynmap:DynmapCoreAPI:${project.dynmapApiVersion}")
-    implementation fg.deobf("curse.maven:dynmapforge-59433:${project.dynmapFileVersion}")
+    implementation fg.deobf("curse.maven:dynmapforge-59433:5442840")
 
     library("org.jsoup:jsoup:${project.jsoupVersion}")
     contained("org.jsoup:jsoup:${project.jsoupVersion}")
